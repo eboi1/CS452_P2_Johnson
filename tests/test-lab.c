@@ -2,13 +2,22 @@
 #include "harness/unity.h"
 #include "../src/lab.h"
 
+char *original_prompt;
+
 
 void setUp(void) {
-  // set stuff up here
+     original_prompt = getenv("MY_PROMPT") ? strdup(getenv("MY_PROMPT")) : NULL;     //save the original environment variable
+     setenv("MY_PROMPT", "shell>", 1);     //set prompt to a specific value
 }
 
 void tearDown(void) {
-  // clean stuff up here
+     //change the prompt back to the original environment variable
+     if (original_prompt) {
+          setenv("MY_PROMPT", original_prompt, 1);
+          free(original_prompt);
+     } else {
+          unsetenv("MY_PROMPT");
+     }
 }
 
 

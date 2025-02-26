@@ -11,6 +11,10 @@
 #include <fcntl.h>
 #include "../src/lab.h"
 
+/**
+ * This method assists in printing out the status of a child process for debugging.
+ * @param status the status of the child process
+ */
 static void explain_waitpid(int status)
 {
     if (!WIFEXITED(status))
@@ -34,6 +38,11 @@ static void explain_waitpid(int status)
     }
 }
 
+/**
+ * This method parses the command line arguments and sets the global variables
+ * @param argc the number of args
+ * @param argv the arg array
+ */
 int main(int argc, char *argv[])
 {
     parse_args(argc, argv);
@@ -89,12 +98,12 @@ int main(int argc, char *argv[])
             if (rval == -1)
             {
                 fprintf(stderr, "Wait pid failed with -1\n");
-		explain_waitpid(status);
+                explain_waitpid(status);
             }
             cmd_free(cmd);
             // get control of the shell
             tcsetpgrp(sh.shell_terminal, sh.shell_pgid);
         }
     }
-    exit(EXIT_SUCCESS);
+    sh_destroy(&sh);
 }
