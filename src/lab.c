@@ -200,26 +200,28 @@ char *trim_white(char *line)
  */
 bool do_builtin(struct shell *sh, char **argv)
 {
-    if (!argv || !argv[0])
+    if (!argv || !argv[0])  // no args
+    {
         return false;
-    if (strcmp(argv[0], "exit") == 0)
+    }
+    if (strcmp(argv[0], "exit") == 0)   //exit command
     {
         sh_destroy(sh);
         exit(0);
     }
-    else if (strcmp(argv[0], "cd") == 0)
+    else if (strcmp(argv[0], "cd") == 0)    //cd command
     {
         change_dir(argv);
         return true;
     }
-    else if (strcmp(argv[0], "history") == 0)
+    else if (strcmp(argv[0], "history") == 0)   //history command
     {
-        HIST_ENTRY **hist = history_list();
-        if (hist)
+        HIST_ENTRY **history = history_list();
+        if (history)
         {
-            for (int i = 0; hist[i] != NULL; i++)
+            for (int i = 0; history[i] != NULL; i++)
             {
-                printf("%s\n", hist[i]->line);
+                printf("%s\n", history[i]->line);
             }
         }
         return true;
