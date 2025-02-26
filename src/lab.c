@@ -141,7 +141,9 @@ char **cmd_parse(const char *line)
 void cmd_free(char **line)
 {
     if (!line)
-        return;
+    {
+        return; //line is empty
+    }
     for (int i = 0; line[i] != NULL; i++)
     {
         free(line[i]);
@@ -158,24 +160,33 @@ void cmd_free(char **line)
 char *trim_white(char *line)
 {
     if (!line)
+    {
         return NULL;
-    int start = 0;
-    while (line[start] && isspace((unsigned char)line[start]))
-        start++;
-    if (start > 0)
+    }
+
+    int initial = 0;
+    while (line[initial] && isspace((unsigned char)line[initial]))
+    {
+        initial++;
+    }
+
+    if (initial > 0)
     {
         int i = 0;
-        while (line[start + i])
+        while (line[initial + i])
         {
-            line[i] = line[start + i];
+            line[i] = line[initial + i];
             i++;
         }
         line[i] = '\0';
     }
-    int len = strlen(line);
-    while (len > 0 && isspace((unsigned char)line[len - 1]))
-        len--;
-    line[len] = '\0';
+
+    int length = strlen(line);
+    while (length > 0 && isspace((unsigned char)line[length - 1]))
+    {
+        length--;
+    }
+    line[length] = '\0';
     return line;
 }
 
