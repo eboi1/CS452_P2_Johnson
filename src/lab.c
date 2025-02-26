@@ -28,7 +28,10 @@ char *get_prompt(const char *env)
     const char *envVariable = getenv(env);  //use getenv 
     const char *defaultPrompt = "shell>";
 
-    if (!envVariable) envVariable = defaultPrompt;   //if no environment variable is provided use default
+    if (!envVariable) 
+    {
+        envVariable = defaultPrompt;   //if no environment variable is provided use default
+    }
 
     char *prompt = malloc(strlen(envVariable) + 1);
     if (!prompt)    //check for memory allocation errors
@@ -48,29 +51,18 @@ char *get_prompt(const char *env)
  */
 int change_dir(char **dir)
 {
-    char *target_dir = NULL;
-    if (dir[1] == NULL)
+    char *destDirectory = NULL;
+
+    if (dir[1] == NULL) //if no directory is provided, cd to home directory
     {
-        target_dir = getenv("HOME");
-        if (!target_dir)
-        {
-            struct passwd *pw = getpwuid(getuid());
-            if (pw)
-                target_dir = pw->pw_dir;
-            else
-            {
-                fprintf(stderr, "Cannot determine home directory.\n");
-                return -1;
-            }
-        }
+        destDirectory = getenv("HOME");
+    } else{
+        destDirectory = dir[1];
     }
-    else
+
+    if (chdir(destDirectory) != 0)
     {
-        target_dir = dir[1];
-    }
-    if (chdir(target_dir) != 0)
-    {
-        perror("chdir failed");
+        fprintf(stderr, "Error: cd error\n");
         return -1;
     }
     return 0;
@@ -83,55 +75,62 @@ int change_dir(char **dir)
  */
 char **cmd_parse(const char *line)
 {
-    if (!line)
+    if (!line) 
+    {
         return NULL;
-    int token_count = 0;
-    int in_token = 0;
+    }
+    int numToken = 0;
+    int inToken = 0;
     for (const char *ptr = line; *ptr; ptr++)
     {
         if (!isspace((unsigned char)*ptr))
         {
-            if (!in_token)
+            if (!inToken)
             {
-                token_count++;
-                in_token = 1;
+                numToken++;
+                inToken = 1;
             }
         }
         else
         {
-            in_token = 0;
+            inToken = 0;
         }
     }
 
-    char **tokens = malloc((token_count + 1) * sizeof(char *));
-    if (!tokens)
+    char **tokenArray = malloc((numToken + 1) * sizeof(char *));
+    if (!tokenArray)
         return NULL;
 
     char *copy = strdup(line);
     if (!copy)
     {
-        free(tokens);
+        free(tokenArray);
         return NULL;
     }
-    int idx = 0;
+
+    int index = 0;
     char *token = strtok(copy, " ");
+
     while (token)
     {
-        tokens[idx] = strdup(token);
-        if (!tokens[idx])
+        tokenArray[index] = strdup(token);
+
+        if (!tokenArray[index])
         {
-            for (int i = 0; i < idx; i++)
-                free(tokens[i]);
-            free(tokens);
+            for (int i = 0; i < index; i++) 
+            {
+                free(tokenArray[i]);
+            }
+            free(tokenArray);
             free(copy);
             return NULL;
         }
-        idx++;
+        index++;
         token = strtok(NULL, " ");
     }
-    tokens[idx] = NULL;
+    tokenArray[index] = NULL;
     free(copy);
-    return tokens;
+    return tokenArray;
 }
 
 /**
